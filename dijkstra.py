@@ -1,84 +1,83 @@
+# from this page: https://joshuacclark.medium.com/dijkstras-algorithm-with-adjacency-lists-ae2e9301d315 
+from collections import defaultdict
+import heapq
 
-# class Graph():
-#     def __init__(self, vertices):
-#         self.V = vertices
-#         self.graph = [[0 for column in range(vertices)] for row in range(vertices)]
+class Graph:
+    def __init__(self, V):
+        self.graph = defaultdict(list)
+        self.V = V
 
+    def addEdge(self, u, v, w):
+        self.graph[u].append([v, w])
+        self.graph[v].append([u, w])
 
+    def minDistance(self, dist, seen):
+        min_d = float('inf')
 
-#     def printSolution(self, dist):
-#         print("Vertex \t Distance from Source")
-#         for node in range(self.V):
-#             print(node, "\t\t", dist[node])
+        for v in range(self.V):
+            if v not in seen and dist[v] < min_d:
+                min_d = dist[v]
+                min_vertex = v
+        return min_vertex
 
-#     def minDistance(self, dist, spSet):
-#         min = 1e7
-#         for v in range(self.V):
-#             if dist[v] < min and spSet[v] == False:
-#                 min = dist[v]
-#                 min_index = v
-#         return min_index
+    def slow_dijkstra(self, source):
+        dist = [float('inf')] * self.V
+        seen = set()
+        dist[source] = 0
 
+        for _ in range(self.V):
+            u = self.minDistance(dist, seen)
+            seen.add(u)
 
+            for node, weight in self.graph[u]:
+                if node not in seen and dist[node] > dist[u] + weight:
+                    dist[node] = dist[u] + weight
+        
+        self.printSolution(dist)
 
-graph = {} 
-graph['home'] = [['c', 5],['a', 3], ['b', 2] ]
-graph['a'] = [['home', 3],['d', 3], ['b', 2] ]
-graph['b'] = [['home', 2],['d',1], ['e', 6] ]
-graph['c'] = [['home', 5],['d',1], ['e', 2] ]
-graph['d'] = [['a', 3],['b',1], ['f', 4] ]
-graph['e'] = [['c', 2],['b',6], ['f', 4], ['x', 4] ]
-graph['f'] = [['e', 1],['d',4], ['x', 2] ]
-graph['x'] = [['f', 2],['3',4]]
+    def dijkstra(self, source):
+        dist = [float('inf')] * self.V
+        seen = set()
+        heap = []
+        dist[source] = 0
 
+        heapq.heappush(heap, (source, dist[source]))
 
-visited = []
-distance = {}
-cur_node = 'home'
-to_visit = []
-distance[cur_node] = 0
+        while len(heap) >0:
+            node, weight = heapq.heappop(heap)
+            seen.add(weight)
 
+            for conn, w in self.graph[node]:
+                if conn not in seen:
+                    d = weight + w
+                    if d < dist[conn]:
+                        dist[conn] = d
+                        heapq.heappush(heap, (conn, d))
 
-# 1. Loop through all the nodes and add them to to_visit
-# 2. Set each distance to infinity, except for the head node.
+        self.printSolution(dist)
 
-for i in graph.keys():
-    if i != cur_node:
-        distance[i] = 1e7
-        to_visit.append(i)
+    def printGraph(self):
+        print(self.graph)
 
-print(to_visit)
-m = min(distance, key=distance.get)
+    def printSolution(self, dist):
+        print("Vertex: \t Distance:")
+        for node in range(self.V):
+            print(node+1, '\t\t\t', dist[node])
 
+G = Graph(6)
+G.addEdge(0,1,3)
+G.addEdge(0,3,5)
+G.addEdge(0,2,2)
+G.addEdge(1,4,3)
+G.addEdge(3,5,2)
+G.addEdge(2,4,1)
+G.addEdge(2,5,6)
+G.addEdge(5,,4)
+G.addEdge(6,100,2)
 
-# visited.append(to_visit.pop(to_visit.index(cur_node)))
-# 3. Start the while loop
-while len(to_visit) > 0:
-
-    cur_node = min(distance, key=distance.get)
-    visited.append(cur_node)
-
-    if graph[cur_node]:
-        print("has neightbors")
-        for i in graph[cur_node]:
-            min_distance = 
-
-
-            distance[i] = distanc
-#         # visited.append(to_visit.pop(to_visit.index(cur_node)))
-
-    cur_node = to_visit.pop(0)
-
-
-
-
-
-
-    
-
-
-
-
-    
-
-print('to visit', to_visit, "visited", visited,  cur_node, "\n", distance)
+# G.addEdge(1,2,10) # G.addEdge(2,5,2)
+# G.addEdge(3,2,11)
+# G.addEdge(1,3,15)
+# G.addEdge(5,4,9)
+# G.addEdge(3,4,6)
+G.dijkstra(0)
